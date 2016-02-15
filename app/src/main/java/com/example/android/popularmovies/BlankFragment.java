@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +21,10 @@ import android.widget.Toast;
 
 import com.example.android.popularmovies.MainActivity;
 import com.example.android.popularmovies.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -136,6 +141,43 @@ public class BlankFragment extends Fragment {
     public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
+
+        /**
+         * Take the String representing the complete movies in JSON Format and
+         * pull out the data we need to construct the Strings needed for the wireframes.
+         *
+         * The data we need to return is the String of the relative URL of the movies' thumbnails
+         *
+         * Fortunately parsing is easy:  constructor takes the JSON string and converts it
+         * into an Object hierarchy for us.
+         */
+        private String[] getMovieDataFromJson(String movieJsonStr)
+                throws JSONException {
+
+            // These are the names of the JSON objects that need to be extracted.
+            final String OWM_RESULTS = "results";
+            final String OWM_POSTER_PATH = "poster_path";
+
+            JSONObject movieJson = new JSONObject(movieJsonStr);
+            JSONArray movieArray = movieJson.getJSONArray(OWM_RESULTS);
+
+            String[] resultStrs = new String[movieArray.length()];
+            for(int i = 0; i < movieArray.length(); i++) {
+                // Get the JSON object representing each movie
+                JSONObject eachMovie = movieArray.getJSONObject(i);
+
+                // description is in a child array called "weather", which is 1 element long.
+                String moviePath = eachMovie.getString(OWM_POSTER_PATH);
+                resultStrs[i] = moviePath;
+            }
+
+            for (String s : resultStrs) {
+                Log.v(LOG_TAG, "Movie entry: " + s);
+            }
+            return resultStrs;
+
+        }
+
         @Override
         protected Void doInBackground(String... params) {
 
@@ -160,9 +202,9 @@ public class BlankFragment extends Fragment {
                 // https://www.themoviedb.org/documentation/api
 
                 // sort order: most popular
-                // URL url = new URL("http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=7601e528b19e6f617ef1b61e6a205e4c");
+                // URL url = new URL("http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=YOUR_API_KEY");
                 // sort order: highest-rated
-                // URL: /discover/movie/?certification_country=US&certification=R&sort_by=vote_average.desc
+                // URL: /discover/movie/?certification_country=US&certification=R&sort_by=vote_average.desc&api_key=YOUR_API_KEY
 
                 final String MOVIE_BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
                 final String SORT_PARAM = "sort_by";
@@ -233,6 +275,15 @@ public class BlankFragment extends Fragment {
                     }
                 }
             }
+
+            try {
+                getMovieDataFromJson(movieJsonStr);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+            }
+
+            // This will only happen if there was an error getting or parsing the forecast.
             return null;
         }
 
