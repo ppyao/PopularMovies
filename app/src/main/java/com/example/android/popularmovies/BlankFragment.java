@@ -225,9 +225,9 @@ public class BlankFragment extends Fragment {
                             .appendQueryParameter(SORT_PARAM, params[0] + "_average.desc")
                             .appendQueryParameter(APPID_PARAM, apiKey);
                 }
-                Uri builtUri = uriBuilder.build();
-                URL url = new URL(builtUri.toString());
-                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
+                String builtUri = uriBuilder.build().toString();
+                URL url = new URL(builtUri);
+                Log.v(LOG_TAG, "Built URI " + builtUri);
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
