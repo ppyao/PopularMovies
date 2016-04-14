@@ -33,10 +33,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class BlankFragment extends Fragment {
-    private final String LOG_TAG = BlankFragment.class.getSimpleName();
+public class MovieFragment extends Fragment {
+    private final String LOG_TAG = MovieFragment.class.getSimpleName();
 
-    public BlankFragment() {
+    public MovieFragment() {
         // Required empty public constructor
     }
 
@@ -193,7 +193,11 @@ public class BlankFragment extends Fragment {
 
             // Will contain the raw JSON response as a string.
             String movieJsonStr = null;
+
+            String sortByPopularity = "popularity.desc";
+            String sortByVote = "ote_average.desc";
             String certCountry = "US";
+            String cert = "R";
             String apiKey = "";
 
             try {
@@ -215,21 +219,21 @@ public class BlankFragment extends Fragment {
                 Uri.Builder uriBuilder = new Uri.Builder();
                 if (params[0].equals("popularity")) {
                     uriBuilder = Uri.parse(MOVIE_BASE_URL).buildUpon()
-                            .appendQueryParameter(SORT_PARAM, params[0]+".desc")
+                            .appendQueryParameter(SORT_PARAM, sortByPopularity)
                             .appendQueryParameter(APPID_PARAM, apiKey);
                 }
                 else if (params[0].equals("vote")) {
                     uriBuilder = Uri.parse(MOVIE_BASE_URL).buildUpon()
                             .appendQueryParameter(CERT_COUNTRY_PARAM, certCountry)
-                            .appendQueryParameter(CERT_PARAM, "R")
-                            .appendQueryParameter(SORT_PARAM, params[0] + "_average.desc")
+                            .appendQueryParameter(CERT_PARAM, cert)
+                            .appendQueryParameter(SORT_PARAM, sortByVote)
                             .appendQueryParameter(APPID_PARAM, apiKey);
                 }
                 String builtUri = uriBuilder.build().toString();
                 URL url = new URL(builtUri);
                 Log.v(LOG_TAG, "Built URI " + builtUri);
 
-                // Create the request to OpenWeatherMap, and open the connection
+                // Create the request to The Movie Database, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
