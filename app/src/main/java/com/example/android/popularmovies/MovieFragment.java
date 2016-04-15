@@ -36,9 +36,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Encapsulates fetching the popular movies and displaying it as a {@link GridView} layout.
+ */
 public class MovieFragment extends Fragment {
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
-    private MovieThumbAdapter mThumbnailAdapter;
+    private MovieThumbAdapter mThumbAdapter;
 
     public MovieFragment() {
         // Required empty public constructor
@@ -74,23 +77,22 @@ public class MovieFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // create a ImageAdapter from dummy thumbnails
-/*        Integer[] location = {
-                R.drawable.sample_2, R.drawable.sample_3,
-        };
-        List<Integer> mThumbIds = new ArrayList<Integer>(Arrays.asList(location));*/
-        String[] thumbURLs = {
+        String[] dummyURLs = {
                 "http://image.tmdb.org/t/p/w92//lfeaDfSv0kjiB3WW0hU3fdf8ZEV.jpg",
                 "http://image.tmdb.org/t/p/w92//tprSZOUBYa6PBj63EI1IAZu91SS.jpg"
         };
-        List<String> mThumbURLs = new ArrayList<String>(Arrays.asList(thumbURLs));
+        List<String> thumbURLs = new ArrayList<String>(Arrays.asList(dummyURLs));
 
-        mThumbnailAdapter = new MovieThumbAdapter(getActivity(), mThumbURLs);
+        // Create a MovieThumbAdapter, which is a customized ArrayAdapter.
+        // The MovieThumbAdapter will use data to populate the GridView it's attached to
+        mThumbAdapter = new MovieThumbAdapter(getActivity(), thumbURLs);
+
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         // Get a reference to the GridView, and attach this adapter to it.
         GridView gridview = (GridView) rootView.findViewById(R.id.gridview_movies);
-        gridview.setAdapter(mThumbnailAdapter);
+        gridview.setAdapter(mThumbAdapter);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
@@ -100,14 +102,12 @@ public class MovieFragment extends Fragment {
             }
         });
 
-
         return rootView;
     }
 
-
     public class FetchMovieTask extends AsyncTask<String, Void, String[]> {
-        private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
+        private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
         /**
          * Take the String representing the complete movies in JSON Format and
@@ -128,13 +128,17 @@ public class MovieFragment extends Fragment {
             JSONObject movieJson = new JSONObject(movieJsonStr);
             JSONArray movieArray = movieJson.getJSONArray(OWM_RESULTS);
 
-            String[] resultStrs = new String[movieArray.length()];
+            // The API response provides a relative path to a movie poster image.
+            // Append a base path ahead of this relative path to build the complete url.
+            // Fetch the image using Picasso by passing in the complete url.
             String baseURL = "http://image.tmdb.org/t/p/w185/";
+
+            String[] resultStrs = new String[movieArray.length()];
             for(int i = 0; i < movieArray.length(); i++) {
                 // Get the JSON object representing each movie
                 JSONObject eachMovie = movieArray.getJSONObject(i);
 
-                // description is in a child array called "weather", which is 1 element long.
+                // moviePath is in a child array called "poster_path", which is 1 element long.
                 String moviePath = eachMovie.getString(OWM_POSTER_PATH);
                 resultStrs[i] = baseURL + moviePath;
             }
@@ -143,7 +147,6 @@ public class MovieFragment extends Fragment {
                 Log.v(LOG_TAG, "Movie entry: " + s);
             }
             return resultStrs;
-
         }
 
         @Override
@@ -262,9 +265,9 @@ public class MovieFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             if (result != null) {
-                mThumbnailAdapter.clear();
+                mThumbAdapter.clear();
                 for(String movieThumbURL : result) {
-                    mThumbnailAdapter.add(movieThumbURL);
+                    mThumbAdapter.add(movieThumbURL);
                 }
                 // New data is back from the server.  Hooray!
             }
