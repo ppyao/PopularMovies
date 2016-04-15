@@ -32,9 +32,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MovieFragment extends Fragment {
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
+    private MovieThumbAdapter mThumbnailAdapter;
 
     public MovieFragment() {
         // Required empty public constructor
@@ -69,11 +73,24 @@ public class MovieFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // create a ImageAdapter from dummy thumbnails
+/*        Integer[] location = {
+                R.drawable.sample_2, R.drawable.sample_3,
+        };
+        List<Integer> mThumbIds = new ArrayList<Integer>(Arrays.asList(location));*/
+        String[] thumbURLs = {
+                "http://image.tmdb.org/t/p/w92//lfeaDfSv0kjiB3WW0hU3fdf8ZEV.jpg",
+                "http://image.tmdb.org/t/p/w92//tprSZOUBYa6PBj63EI1IAZu91SS.jpg"
+        };
+        List<String> mThumbURLs = new ArrayList<String>(Arrays.asList(thumbURLs));
+
+        mThumbnailAdapter = new MovieThumbAdapter(getActivity(), mThumbURLs);
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+        // Get a reference to the GridView, and attach this adapter to it.
         GridView gridview = (GridView) rootView.findViewById(R.id.gridview_movies);
-        gridview.setAdapter(new ImageAdapter(getActivity()));
+        gridview.setAdapter(mThumbnailAdapter);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
@@ -83,62 +100,12 @@ public class MovieFragment extends Fragment {
             }
         });
 
+
         return rootView;
     }
 
-    public class ImageAdapter extends BaseAdapter {
-        private Context mContext;
 
-        public ImageAdapter(Context c) {
-            mContext = c;
-        }
-
-        public int getCount() {
-            return mThumbIds.length;
-        }
-
-        public Object getItem(int position) {
-            return null;
-        }
-
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        // create a new ImageView for each item referenced by the Adapter
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ImageView imageView;
-            if (convertView == null) {
-                // if it's not recycled, initialize some attributes
-                imageView = new ImageView(mContext);
-                imageView.setAdjustViewBounds(true);
-                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                imageView.setPadding(8, 8, 8, 8);
-            } else {
-                imageView = (ImageView) convertView;
-            }
-
-            imageView.setImageResource(mThumbIds[position]);
-            return imageView;
-        }
-
-        // references to our images
-        private Integer[] mThumbIds = {
-                R.drawable.sample_2, R.drawable.sample_3,
-                R.drawable.sample_4, R.drawable.sample_5,
-                R.drawable.sample_6, R.drawable.sample_7,
-                R.drawable.sample_0, R.drawable.sample_1,
-                R.drawable.sample_2, R.drawable.sample_3,
-                R.drawable.sample_4, R.drawable.sample_5,
-                R.drawable.sample_6, R.drawable.sample_7,
-                R.drawable.sample_0, R.drawable.sample_1,
-                R.drawable.sample_2, R.drawable.sample_3,
-                R.drawable.sample_4, R.drawable.sample_5,
-                R.drawable.sample_6, R.drawable.sample_7
-        };
-    }
-
-    public class FetchMovieTask extends AsyncTask<String, Void, Void> {
+    public class FetchMovieTask extends AsyncTask<String, Void, String[]> {
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
 
@@ -162,13 +129,14 @@ public class MovieFragment extends Fragment {
             JSONArray movieArray = movieJson.getJSONArray(OWM_RESULTS);
 
             String[] resultStrs = new String[movieArray.length()];
+            String baseURL = "http://image.tmdb.org/t/p/w185/";
             for(int i = 0; i < movieArray.length(); i++) {
                 // Get the JSON object representing each movie
                 JSONObject eachMovie = movieArray.getJSONObject(i);
 
                 // description is in a child array called "weather", which is 1 element long.
                 String moviePath = eachMovie.getString(OWM_POSTER_PATH);
-                resultStrs[i] = moviePath;
+                resultStrs[i] = baseURL + moviePath;
             }
 
             for (String s : resultStrs) {
@@ -179,7 +147,7 @@ public class MovieFragment extends Fragment {
         }
 
         @Override
-        protected Void doInBackground(String... params) {
+        protected String[] doInBackground(String... params) {
 
             // If there's no sort order, there's nothing to look up.  Verify size of params.
             if (params.length == 0) {
@@ -198,7 +166,7 @@ public class MovieFragment extends Fragment {
             String sortByVote = "ote_average.desc";
             String certCountry = "US";
             String cert = "R";
-            String apiKey = "";
+            String apiKey = "7601e528b19e6f617ef1b61e6a205e4c";
 
             try {
                 // Construct the URL for the TMDb query
@@ -281,7 +249,7 @@ public class MovieFragment extends Fragment {
             }
 
             try {
-                getMovieDataFromJson(movieJsonStr);
+                return getMovieDataFromJson(movieJsonStr);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
@@ -291,5 +259,15 @@ public class MovieFragment extends Fragment {
             return null;
         }
 
+        @Override
+        protected void onPostExecute(String[] result) {
+            if (result != null) {
+                mThumbnailAdapter.clear();
+                for(String movieThumbURL : result) {
+                    mThumbnailAdapter.add(movieThumbURL);
+                }
+                // New data is back from the server.  Hooray!
+            }
+        }
     }
 }
