@@ -166,7 +166,7 @@ public class MovieFragment extends Fragment {
             String sortByVote = "ote_average.desc";
             String certCountry = "US";
             String cert = "R";
-            String apiKey = "7601e528b19e6f617ef1b61e6a205e4c";
+            String apiKey = "";
 
             try {
                 // Construct the URL for the TMDb query
