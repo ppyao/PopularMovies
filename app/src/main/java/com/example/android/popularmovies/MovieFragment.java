@@ -1,6 +1,7 @@
 package com.example.android.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -76,7 +77,7 @@ public class MovieFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // create a ImageAdapter from dummy thumbnails
+        // create a MovieThumbAdapter from dummy thumbnails
         String[] dummyURLs = {
                 "http://image.tmdb.org/t/p/w92//lfeaDfSv0kjiB3WW0hU3fdf8ZEV.jpg",
                 "http://image.tmdb.org/t/p/w92//tprSZOUBYa6PBj63EI1IAZu91SS.jpg"
@@ -94,11 +95,17 @@ public class MovieFragment extends Fragment {
         GridView gridview = (GridView) rootView.findViewById(R.id.gridview_movies);
         gridview.setAdapter(mThumbAdapter);
 
+        // register a listener, so that when the item is clicked, the call back is invoked
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Toast.makeText(getActivity(), "" + position,
-                        Toast.LENGTH_SHORT).show();
+                String thumbURL = mThumbAdapter.getItem(position);
+                Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra(Intent.EXTRA_TEXT, thumbURL);
+                startActivity(intent);
+
+                //Toast.makeText(getActivity(), "" + position + ": " + thumbURL,
+                //        Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -263,6 +270,7 @@ public class MovieFragment extends Fragment {
         }
 
         @Override
+        // onPostExecute receive the return value of doInBackground as the input
         protected void onPostExecute(String[] result) {
             if (result != null) {
                 mThumbAdapter.clear();
