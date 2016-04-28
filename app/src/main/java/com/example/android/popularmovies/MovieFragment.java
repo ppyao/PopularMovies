@@ -2,9 +2,11 @@ package com.example.android.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -67,8 +69,7 @@ public class MovieFragment extends Fragment {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            FetchMovieTask fetchMovieTask = new FetchMovieTask();
-            fetchMovieTask.execute("vote");  // other sort option: "popularity"
+            updateMovie();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -77,7 +78,7 @@ public class MovieFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // create a MovieThumbAdapter from dummy thumbnails
+        /*// create a MovieThumbAdapter from dummy thumbnails
         String[] dummyURLs = {
                 "http://image.tmdb.org/t/p/w92//lfeaDfSv0kjiB3WW0hU3fdf8ZEV.jpg",
                 "http://image.tmdb.org/t/p/w92//tprSZOUBYa6PBj63EI1IAZu91SS.jpg"
@@ -86,7 +87,9 @@ public class MovieFragment extends Fragment {
 
         // Create a MovieThumbAdapter, which is a customized ArrayAdapter.
         // The MovieThumbAdapter will use data to populate the GridView it's attached to
-        mThumbAdapter = new MovieThumbAdapter(getActivity(), thumbURLs);
+        mThumbAdapter = new MovieThumbAdapter(getActivity(), thumbURLs);*/
+
+        mThumbAdapter = new MovieThumbAdapter(getActivity(), new ArrayList<String>());
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -110,6 +113,20 @@ public class MovieFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    private void updateMovie() {
+        FetchMovieTask fetchMovieTask = new FetchMovieTask();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sortOrder = prefs.getString(getString(R.string.pref_orders_key), getString(R.string.pref_orders_vote));
+        //fetchMovieTask.execute("vote");  // other sort option: "popularity"
+        fetchMovieTask.execute(sortOrder);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateMovie();
     }
 
     public class FetchMovieTask extends AsyncTask<String, Void, String[]> {
