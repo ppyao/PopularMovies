@@ -14,7 +14,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -69,8 +72,9 @@ public class DetailActivity extends AppCompatActivity {
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
             if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
                 String thumbURL = intent.getStringExtra(Intent.EXTRA_TEXT);
-                ((TextView) rootView.findViewById(R.id.detail_text))
+                ((TextView) rootView.findViewById(R.id.detail_date_text))
                         .setText(thumbURL);
+                Picasso.with(getContext()).load(thumbURL).into((ImageView) rootView.findViewById(R.id.detail_thumb_image));
             }
             return rootView;
         }
