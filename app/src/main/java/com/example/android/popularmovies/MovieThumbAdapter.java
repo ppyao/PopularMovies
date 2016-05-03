@@ -62,7 +62,7 @@ public class MovieThumbAdapter extends ArrayAdapter<Movie> {
         }
 
         Movie movie = getItem(position);
-        Log.v(LOG_TAG, position + "th Movie url: " + movie.movieThumbURL);
+        //Log.v(LOG_TAG, position + "th Movie url: " + movie.movieThumbURL);
         Picasso.with(getContext()).load(movie.movieThumbURL).into(imageView);
         //imageView.setImageResource(getItem(position));
         return imageView;

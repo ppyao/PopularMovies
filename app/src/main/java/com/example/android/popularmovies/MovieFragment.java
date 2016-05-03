@@ -45,7 +45,7 @@ import java.util.List;
 public class MovieFragment extends Fragment {
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
     private MovieThumbAdapter mThumbAdapter;
-    //private ArrayList<Movie> movieList;
+    private ArrayList<Movie> movieList;
 
     public MovieFragment() {
         // Required empty public constructor
@@ -54,21 +54,21 @@ public class MovieFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-/*        if(savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
+        if(savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
             movieList = new ArrayList<Movie>();
         }
         else {
             movieList = savedInstanceState.getParcelableArrayList("movies");
-        }*/
+        }
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
     }
 
-/*    @Override
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList("movies", movieList);
         super.onSaveInstanceState(outState);
-    }*/
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -121,7 +121,7 @@ public class MovieFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra("movies", movie);
                 startActivity(intent);
 
-                //Toast.makeText(getActivity(), "" + position + ": " + thumbURL,
+                //Toast.makeText(getActivity(), "" + position + ": " + movie.movieTitle,
                 //        Toast.LENGTH_SHORT).show();
             }
         });
@@ -189,7 +189,7 @@ public class MovieFragment extends Fragment {
                 String movieOverview = eachMovie.getString(OWM_OVERVIEW);
 
 
-                resultMovies[i] = new Movie(movieThumbURL, movieTitle, movieDate, movieVote, movieOverview);
+                resultMovies[i] = new Movie(baseURL + movieThumbURL, movieTitle, movieDate, movieVote, movieOverview);
                 resultStrs[i] = baseURL + movieThumbURL;
             }
 
