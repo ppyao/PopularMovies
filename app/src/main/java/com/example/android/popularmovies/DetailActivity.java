@@ -74,8 +74,14 @@ public class DetailActivity extends AppCompatActivity {
                 //String thumbURL = intent.getStringExtra(Intent.EXTRA_TEXT);
 
                 Movie movie = (Movie)intent.getParcelableExtra("movies");
-                ((TextView) rootView.findViewById(R.id.detail_date_text))
+                ((TextView) rootView.findViewById(R.id.detail_title_text))
                         .setText(movie.movieTitle);
+                ((TextView) rootView.findViewById(R.id.detail_date_text))
+                        .setText(movie.movieDate);
+                ((TextView) rootView.findViewById(R.id.detail_vote_text))
+                        .setText(movie.movieVote);
+                ((TextView) rootView.findViewById(R.id.detail_overview_text))
+                        .setText(movie.movieOverview);
                 Picasso.with(getContext()).load(movie.movieThumbURL).into((ImageView) rootView.findViewById(R.id.detail_thumb_image));
             }
             return rootView;
