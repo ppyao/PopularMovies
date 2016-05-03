@@ -2,6 +2,7 @@ package com.example.android.popularmovies;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -61,6 +62,7 @@ public class MovieThumbAdapter extends ArrayAdapter<Movie> {
         }
 
         Movie movie = getItem(position);
+        Log.v(LOG_TAG, position + "th Movie url: " + movie.movieThumbURL);
         Picasso.with(getContext()).load(movie.movieThumbURL).into(imageView);
         //imageView.setImageResource(getItem(position));
         return imageView;

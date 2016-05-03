@@ -45,7 +45,7 @@ import java.util.List;
 public class MovieFragment extends Fragment {
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
     private MovieThumbAdapter mThumbAdapter;
-    private ArrayList<Movie> movieList;
+    //private ArrayList<Movie> movieList;
 
     public MovieFragment() {
         // Required empty public constructor
@@ -54,21 +54,21 @@ public class MovieFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
+/*        if(savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
             movieList = new ArrayList<Movie>();
         }
         else {
             movieList = savedInstanceState.getParcelableArrayList("movies");
-        }
+        }*/
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
     }
 
-    @Override
+/*    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList("movies", movieList);
         super.onSaveInstanceState(outState);
-    }
+    }*/
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -100,7 +100,7 @@ public class MovieFragment extends Fragment {
         // Create a MovieThumbAdapter, which is a customized ArrayAdapter.
         // The MovieThumbAdapter will use data to populate the GridView it's attached to
         // mThumbAdapter = new MovieThumbAdapter(getActivity(), thumbURLs);
-        mThumbAdapter = new MovieThumbAdapter(getActivity(), movieList);
+        mThumbAdapter = new MovieThumbAdapter(getActivity(), new ArrayList<Movie>());
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -193,8 +193,8 @@ public class MovieFragment extends Fragment {
                 resultStrs[i] = baseURL + movieThumbURL;
             }
 
-            for (String s : resultStrs) {
-                Log.v(LOG_TAG, "Movie entry: " + s);
+            for (Movie m : resultMovies) {
+                Log.v(LOG_TAG, "Movie entry: " + m.movieTitle + " URL: " + m.movieThumbURL);
             }
             return resultMovies;
         }
@@ -219,7 +219,7 @@ public class MovieFragment extends Fragment {
             String sortByVote = "ote_average.desc";
             String certCountry = "US";
             String cert = "R";
-            String apiKey = "7601e528b19e6f617ef1b61e6a205e4c";
+            String apiKey = "";
 
             try {
                 // Construct the URL for the TMDb query
