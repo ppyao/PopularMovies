@@ -18,7 +18,7 @@ import java.util.List;
  *
  * In the ImageView, fetch the image using Picasso by passing in the complete url.
  */
-public class MovieThumbAdapter extends ArrayAdapter<String> {
+public class MovieThumbAdapter extends ArrayAdapter<Movie> {
 
     private static final String LOG_TAG = MovieThumbAdapter.class.getSimpleName();
 
@@ -28,14 +28,14 @@ public class MovieThumbAdapter extends ArrayAdapter<String> {
      * to populate into the lists
      *
      * @param context        The current context. Used to inflate the layout file.
-     * @param mThumbIds      A List of AndroidFlavor objects to display in a list
+     * @param movies      A List of AndroidFlavor objects to display in a list
      */
-    public MovieThumbAdapter(Context context, List<String> mThumbIds) {
+    public MovieThumbAdapter(Context context, List<Movie> movies) {
         // Here, we initialize the ArrayAdapter's internal storage for the context and the list.
         // the second argument is used when the ArrayAdapter is populating a single TextView.
         // Because this is a custom adapter for an ImageView, the adapter is not
         // going to use this second argument, so it can be any value. Here, we used 0.
-        super(context,0, mThumbIds);
+        super(context,0, movies);
     }
 
     /**
@@ -60,7 +60,8 @@ public class MovieThumbAdapter extends ArrayAdapter<String> {
             imageView = (ImageView) convertView;
         }
 
-        Picasso.with(getContext()).load(getItem(position)).into(imageView);
+        Movie movie = getItem(position);
+        Picasso.with(getContext()).load(movie.movieThumbURL).into(imageView);
         //imageView.setImageResource(getItem(position));
         return imageView;
     }

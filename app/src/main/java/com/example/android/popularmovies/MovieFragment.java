@@ -45,6 +45,7 @@ import java.util.List;
 public class MovieFragment extends Fragment {
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
     private MovieThumbAdapter mThumbAdapter;
+    private ArrayList<Movie> movieList;
 
     public MovieFragment() {
         // Required empty public constructor
@@ -53,8 +54,20 @@ public class MovieFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
+            movieList = new ArrayList<Movie>();
+        }
+        else {
+            movieList = savedInstanceState.getParcelableArrayList("movies");
+        }
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("movies", movieList);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -80,16 +93,14 @@ public class MovieFragment extends Fragment {
                              Bundle savedInstanceState) {
         /*// create a MovieThumbAdapter from dummy thumbnails
         String[] dummyURLs = {
-                "http://image.tmdb.org/t/p/w92//lfeaDfSv0kjiB3WW0hU3fdf8ZEV.jpg",
-                "http://image.tmdb.org/t/p/w92//tprSZOUBYa6PBj63EI1IAZu91SS.jpg"
+                "http://image.tmdb.org/t/p/w92//lfeaDfSv0kjiB3WW0hU3fdf8ZEV.jpg"
         };
-        List<String> thumbURLs = new ArrayList<String>(Arrays.asList(dummyURLs));
+        List<String> thumbURLs = new ArrayList<String>(Arrays.asList(dummyURLs));*/
 
         // Create a MovieThumbAdapter, which is a customized ArrayAdapter.
         // The MovieThumbAdapter will use data to populate the GridView it's attached to
-        mThumbAdapter = new MovieThumbAdapter(getActivity(), thumbURLs);*/
-
-        mThumbAdapter = new MovieThumbAdapter(getActivity(), new ArrayList<String>());
+        // mThumbAdapter = new MovieThumbAdapter(getActivity(), thumbURLs);
+        mThumbAdapter = new MovieThumbAdapter(getActivity(), movieList);
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -103,8 +114,11 @@ public class MovieFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                String thumbURL = mThumbAdapter.getItem(position);
-                Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra(Intent.EXTRA_TEXT, thumbURL);
+                Movie movie = mThumbAdapter.getItem(position);
+                //Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra(Intent.EXTRA_TEXT, movie.movieThumbURL);
+
+                // pass a parcelable object to an intent
+                Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra("movies", movie);
                 startActivity(intent);
 
                 //Toast.makeText(getActivity(), "" + position + ": " + thumbURL,
@@ -129,7 +143,7 @@ public class MovieFragment extends Fragment {
         updateMovie();
     }
 
-    public class FetchMovieTask extends AsyncTask<String, Void, String[]> {
+    public class FetchMovieTask extends AsyncTask<String, Void, Movie[]> {
 
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
@@ -142,12 +156,16 @@ public class MovieFragment extends Fragment {
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
-        private String[] getMovieDataFromJson(String movieJsonStr)
+        private Movie[] getMovieDataFromJson(String movieJsonStr)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
             final String OWM_RESULTS = "results";
             final String OWM_POSTER_PATH = "poster_path";
+            final String OWM_OVERVIEW = "overview";
+            final String OWM_RELEASE_DATE = "release_date";
+            final String OWM_TITLE = "title";
+            final String OWM_VOTE = "vote_average";
 
             JSONObject movieJson = new JSONObject(movieJsonStr);
             JSONArray movieArray = movieJson.getJSONArray(OWM_RESULTS);
@@ -157,24 +175,32 @@ public class MovieFragment extends Fragment {
             // Fetch the image using Picasso by passing in the complete url.
             String baseURL = "http://image.tmdb.org/t/p/w185/";
 
+            Movie[] resultMovies = new Movie[movieArray.length()];
             String[] resultStrs = new String[movieArray.length()];
             for(int i = 0; i < movieArray.length(); i++) {
                 // Get the JSON object representing each movie
                 JSONObject eachMovie = movieArray.getJSONObject(i);
 
                 // moviePath is in a child array called "poster_path", which is 1 element long.
-                String moviePath = eachMovie.getString(OWM_POSTER_PATH);
-                resultStrs[i] = baseURL + moviePath;
+                String movieThumbURL = eachMovie.getString(OWM_POSTER_PATH);
+                String movieTitle = eachMovie.getString(OWM_TITLE);
+                String movieDate = eachMovie.getString(OWM_RELEASE_DATE);
+                String movieVote = eachMovie.getString(OWM_VOTE);
+                String movieOverview = eachMovie.getString(OWM_OVERVIEW);
+
+
+                resultMovies[i] = new Movie(movieThumbURL, movieTitle, movieDate, movieVote, movieOverview);
+                resultStrs[i] = baseURL + movieThumbURL;
             }
 
             for (String s : resultStrs) {
                 Log.v(LOG_TAG, "Movie entry: " + s);
             }
-            return resultStrs;
+            return resultMovies;
         }
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected Movie[] doInBackground(String... params) {
 
             // If there's no sort order, there's nothing to look up.  Verify size of params.
             if (params.length == 0) {
@@ -193,7 +219,7 @@ public class MovieFragment extends Fragment {
             String sortByVote = "ote_average.desc";
             String certCountry = "US";
             String cert = "R";
-            String apiKey = "";
+            String apiKey = "7601e528b19e6f617ef1b61e6a205e4c";
 
             try {
                 // Construct the URL for the TMDb query
@@ -288,11 +314,11 @@ public class MovieFragment extends Fragment {
 
         @Override
         // onPostExecute receive the return value of doInBackground as the input
-        protected void onPostExecute(String[] result) {
+        protected void onPostExecute(Movie[] result) {
             if (result != null) {
                 mThumbAdapter.clear();
-                for(String movieThumbURL : result) {
-                    mThumbAdapter.add(movieThumbURL);
+                for(Movie movie : result) {
+                    mThumbAdapter.add(movie);
                 }
                 // New data is back from the server.  Hooray!
             }

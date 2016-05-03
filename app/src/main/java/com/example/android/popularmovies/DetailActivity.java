@@ -70,11 +70,13 @@ public class DetailActivity extends AppCompatActivity {
             // The detail Activity called via intent. Inspect the intent for the movie info
             Intent intent = getActivity().getIntent();
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-            if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-                String thumbURL = intent.getStringExtra(Intent.EXTRA_TEXT);
+            if (intent != null && intent.hasExtra("movies")) {
+                //String thumbURL = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+                Movie movie = (Movie)intent.getParcelableExtra("movies");
                 ((TextView) rootView.findViewById(R.id.detail_date_text))
-                        .setText(thumbURL);
-                Picasso.with(getContext()).load(thumbURL).into((ImageView) rootView.findViewById(R.id.detail_thumb_image));
+                        .setText(movie.movieTitle);
+                Picasso.with(getContext()).load(movie.movieThumbURL).into((ImageView) rootView.findViewById(R.id.detail_thumb_image));
             }
             return rootView;
         }
