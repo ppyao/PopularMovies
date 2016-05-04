@@ -215,7 +215,7 @@ public class MovieFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String movieJsonStr = null;
 
-            String apiKey = "7601e528b19e6f617ef1b61e6a205e4c";
+            String apiKey = "";
 
             try {
                 // Construct the URL for the TMDb query
