@@ -215,11 +215,7 @@ public class MovieFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String movieJsonStr = null;
 
-            String sortByPopularity = "popularity.desc";
-            String sortByVote = "ote_average.desc";
-            String certCountry = "US";
-            String cert = "R";
-            String apiKey = "";
+            String apiKey = "7601e528b19e6f617ef1b61e6a205e4c";
 
             try {
                 // Construct the URL for the TMDb query
@@ -227,27 +223,22 @@ public class MovieFragment extends Fragment {
                 // https://www.themoviedb.org/documentation/api
 
                 // sort order: most popular
-                // URL url = new URL("http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=YOUR_API_KEY");
+                // URL url = new URL("http://api.themoviedb.org/3/movie/popular?api_key=[YOUR_API_KEY]");
                 // sort order: highest-rated
-                // URL: /discover/movie/?certification_country=US&certification=R&sort_by=vote_average.desc&api_key=YOUR_API_KEY
+                // URL: http://api.themoviedb.org/3/movie/top_rated?api_key=[YOUR_API_KEY]
 
-                final String MOVIE_BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
-                final String SORT_PARAM = "sort_by";
-                final String CERT_COUNTRY_PARAM = "certification_country";
-                final String CERT_PARAM = "certification";
+                final String MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/";
+                String sortByPopularity = "popular";
+                String sortByVote = "top_rated";
                 final String APPID_PARAM = "api_key";
 
                 Uri.Builder uriBuilder = new Uri.Builder();
                 if (params[0].equals("popularity")) {
-                    uriBuilder = Uri.parse(MOVIE_BASE_URL).buildUpon()
-                            .appendQueryParameter(SORT_PARAM, sortByPopularity)
+                    uriBuilder = Uri.parse(MOVIE_BASE_URL + sortByPopularity).buildUpon()
                             .appendQueryParameter(APPID_PARAM, apiKey);
                 }
                 else if (params[0].equals("vote")) {
-                    uriBuilder = Uri.parse(MOVIE_BASE_URL).buildUpon()
-                            .appendQueryParameter(CERT_COUNTRY_PARAM, certCountry)
-                            .appendQueryParameter(CERT_PARAM, cert)
-                            .appendQueryParameter(SORT_PARAM, sortByVote)
+                    uriBuilder = Uri.parse(MOVIE_BASE_URL + sortByVote).buildUpon()
                             .appendQueryParameter(APPID_PARAM, apiKey);
                 }
                 String builtUri = uriBuilder.build().toString();
